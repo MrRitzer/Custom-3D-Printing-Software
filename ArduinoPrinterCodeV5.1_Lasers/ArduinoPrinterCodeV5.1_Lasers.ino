@@ -181,8 +181,14 @@ void autoPrint() {
     zPos += zCords[arr_pos];
     x_stepper.setCurrentPosition(0);
     x_stepper.moveTo(xCords[arr_pos]);
-    Serial.print(xCords[arr_pos]);
     x_stepper.setSpeed(rpm);
+    if (xCords[arr_pos] > 0) {
+      
+    }
+    if else (xCords[arr_pos] < 0) {
+      
+    }
+    else
     y_stepper.setCurrentPosition(0);
     y_stepper.moveTo(yCords[arr_pos]);
     y_stepper.setSpeed(rpm);
