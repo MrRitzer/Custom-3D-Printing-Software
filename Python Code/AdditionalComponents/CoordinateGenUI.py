@@ -9,8 +9,6 @@ def coordMenu():
 
             [sg.Checkbox('Layers:',key='-LAYERCB-',default=True,enable_events=True),sg.Input(key='-LAYERS-',size=(5,5),disabled_readonly_background_color='#979392'),sg.Text('Layer Thickness:'),sg.Input(key='-LAYERTHICKNESS-',size=(5,5),disabled_readonly_background_color='#979392'),sg.Text('Z Step to MM:'),sg.Input(key='-ZCONV-',size=(10,5),disabled_readonly_background_color='#979392')],
 
-            [sg.Checkbox('Lasers?', key='-LASERS-')],
-
             [sg.Text('Filename:'),sg.Input("output.txt",key='-FILENAME-',size=(8,5),disabled=True,disabled_readonly_background_color='#979392')],
 
             [sg.B('Generate'), sg.B('Load Last Output'), sg.B('Quit')]]
@@ -55,38 +53,21 @@ def coordMenu():
                 window.find_element('-ZCONV-').Update(disabled = True,value='')
         
         if event == 'Generate':
-            if values['-LASERS-'] == True:
-                try:
-                    pg.LaserCoordGen(float(values['-LENGTH-']),float(values['-CHUNKLENGTH-']),float(values['-XCONV-']),float(values['-WIDTH-']),float(values['-RESOLUTION-']),float(values['-YCONV-']),float(values['-LAYERS-']),float(values['-LAYERTHICKNESS-']),float(values['-ZCONV-']),values['-FILENAME-'])
-                    file = open('.temp_log','w')
-                    file.write(str(values['-LENGTH-'])+"\n")
-                    file.write(str(values['-CHUNKLENGTH-'])+"\n")
-                    file.write(str(values['-XCONV-'])+"\n")
-                    file.write(str(values['-WIDTH-'])+"\n")
-                    file.write(str(values['-RESOLUTION-'])+"\n")
-                    file.write(str(values['-YCONV-'])+"\n")
-                    file.write(str(values['-LAYERS-'])+"\n")
-                    file.write(str(values['-LAYERTHICKNESS-'])+"\n")
-                    file.write(str(values['-ZCONV-'])+"\n")
-                    file.close()
-                except:
-                    sg.popup_error("Verify all values are correct and try again",title="Error")
-            else:
-                try:
-                    pg.DefaultCoordGen(float(values['-LENGTH-']),float(values['-CHUNKLENGTH-']),float(values['-XCONV-']),float(values['-WIDTH-']),float(values['-RESOLUTION-']),float(values['-YCONV-']),float(values['-LAYERS-']),float(values['-LAYERTHICKNESS-']),float(values['-ZCONV-']),values['-FILENAME-'])
-                    file = open('.temp_log','w')
-                    file.write(str(values['-LENGTH-'])+"\n")
-                    file.write(str(values['-CHUNKLENGTH-'])+"\n")
-                    file.write(str(values['-XCONV-'])+"\n")
-                    file.write(str(values['-WIDTH-'])+"\n")
-                    file.write(str(values['-RESOLUTION-'])+"\n")
-                    file.write(str(values['-YCONV-'])+"\n")
-                    file.write(str(values['-LAYERS-'])+"\n")
-                    file.write(str(values['-LAYERTHICKNESS-'])+"\n")
-                    file.write(str(values['-ZCONV-'])+"\n")
-                    file.close()
-                except:
-                    sg.popup_error("Verify all values are correct and try again",title="Error")
+            try:
+                pg.DefaultCoordGen(float(values['-LENGTH-']),float(values['-CHUNKLENGTH-']),float(values['-XCONV-']),float(values['-WIDTH-']),float(values['-RESOLUTION-']),float(values['-YCONV-']),float(values['-LAYERS-']),float(values['-LAYERTHICKNESS-']),float(values['-ZCONV-']),values['-FILENAME-'])
+                file = open('.temp_log','w')
+                file.write(str(values['-LENGTH-'])+"\n")
+                file.write(str(values['-CHUNKLENGTH-'])+"\n")
+                file.write(str(values['-XCONV-'])+"\n")
+                file.write(str(values['-WIDTH-'])+"\n")
+                file.write(str(values['-RESOLUTION-'])+"\n")
+                file.write(str(values['-YCONV-'])+"\n")
+                file.write(str(values['-LAYERS-'])+"\n")
+                file.write(str(values['-LAYERTHICKNESS-'])+"\n")
+                file.write(str(values['-ZCONV-'])+"\n")
+                file.close()
+            except:
+                sg.popup_error("Verify all values are correct and try again",title="Error")
 
         if event == 'Load Last Output':
             if exists(".temp_log"):

@@ -1,6 +1,7 @@
 /*
   This example shows how to read and write data to and from an SD card file
- SD card attached to SPI bus as follows:
+  The circuit:
+   SD card attached to SPI bus as follows:
  ** MOSI - pin 11 or 51
  ** MISO - pin 12 or 50
  ** CLK - pin 13 or 52
@@ -15,6 +16,13 @@
 AccelStepper x_stepper(AccelStepper::DRIVER, 4, 5);
 AccelStepper y_stepper(AccelStepper::DRIVER, 6, 38);
 AccelStepper z_stepper(AccelStepper::DRIVER, 8, 9);
+//For the laser functionality to work pins need to be defined below, unused lasers can be given a bad pin.
+int xLaserPos = 0;
+int xLaserNeg = 0;
+int yLaserPos = 0;
+int yLaserNeg = 0;
+int zLaserPos = 0;
+int zLaserNeg = 0;
 
 // Variables for within arduino code
 int arr_pos = 0;
@@ -23,6 +31,9 @@ int current_mode = 0;
 int previous_mode = 0;
 bool isDone = false;
 int mnlMv[3] = {0,0,0};
+int xPos = 0;
+int yPos = 0;
+int zPos = 0;
 
 //Variables used with the SD card
 File myFile;
@@ -30,9 +41,6 @@ int RunCount = 0;
 int xCords[500];
 int yCords[500];
 int zCords[500];
-int xLaser[500];
-int yLaser[500];
-int zLaser[500];
 
 void setup() {
   x_stepper.setMaxSpeed(2000);
@@ -78,9 +86,18 @@ void loop() {
     }
     //Go Home
     if (current_mode == 4) {
-      x_stepper.runToNewPosition(0);
-      y_stepper.runToNewPosition(0);
-      z_stepper.runToNewPosition(0);
+      x_stepper.setCurrentPosition(0);
+      y_stepper.setCurrentPosition(0);
+      z_stepper.setCurrentPosition(0);
+      x_stepper.runToNewPosition(0-xPos);
+      y_stepper.runToNewPosition(0-yPos);
+      z_stepper.runToNewPosition(zPos-0);
+      x_stepper.setCurrentPosition(0);
+      y_stepper.setCurrentPosition(0);
+      z_stepper.setCurrentPosition(0);
+      xPos = 0;
+      yPos = 0;
+      zPos = 0;
       //Pause Print
       current_mode = 2;
     }
@@ -89,6 +106,9 @@ void loop() {
       x_stepper.setCurrentPosition(0);
       y_stepper.setCurrentPosition(0);
       z_stepper.setCurrentPosition(0);
+      xPos = 0;
+      yPos = 0;
+      zPos = 0;
       //Pause Print
       current_mode = 2;
     }
@@ -127,6 +147,9 @@ void manualPrint() {
       break;
     }
     if (x_stepper.distanceToGo() == 0 && y_stepper.distanceToGo() == 0 && z_stepper.distanceToGo() == 0) {
+      xPos += mnlMv[0];
+      yPos += mnlMv[1];
+      zPos += mnlMv[2];
       x_stepper.setCurrentPosition(0);
       x_stepper.moveTo(mnlMv[0]);
       x_stepper.setSpeed(rpm);
@@ -153,8 +176,12 @@ void manualPrint() {
 
 void autoPrint() {
   if (x_stepper.distanceToGo() == 0 && y_stepper.distanceToGo() == 0 && z_stepper.distanceToGo() == 0 && arr_pos < RunCount) {
+    xPos += xCords[arr_pos];
+    yPos += yCords[arr_pos];
+    zPos += zCords[arr_pos];
     x_stepper.setCurrentPosition(0);
     x_stepper.moveTo(xCords[arr_pos]);
+    Serial.print(xCords[arr_pos]);
     x_stepper.setSpeed(rpm);
     y_stepper.setCurrentPosition(0);
     y_stepper.moveTo(yCords[arr_pos]);
@@ -197,9 +224,6 @@ void GetCords() {
     bool x = true;
     bool y = true;
     bool z = true;
-    bool xL = true;
-    bool yL = true;
-    bool zL = true;
     tempInt = "";
     tempVal = "";
     tempChar = 'a';
@@ -229,24 +253,6 @@ void GetCords() {
       else if (tempChar == ',' && z) {
         tempIntVal = tempInt.toInt();
         zCords[i] = tempIntVal;
-        tempInt = "";
-        z = false;
-      }
-      else if (tempChar == ',' && xL) {
-        tempIntVal = tempInt.toInt();
-        xLaser[i] = tempIntVal;
-        tempInt = "";
-        x = false;
-      }
-      else if (tempChar == ',' && yL) {
-        tempIntVal = tempInt.toInt();
-        yLaser[i] = tempIntVal;
-        tempInt = "";
-        y = false;
-      }
-      else if (tempChar == ',' && zL) {
-        tempIntVal = tempInt.toInt();
-        zLaser[i] = tempIntVal;
         tempInt = "";
         z = false;
       }

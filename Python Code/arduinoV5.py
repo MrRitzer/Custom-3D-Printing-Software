@@ -54,10 +54,5 @@ def read_all():
         print(temp)
         temp = arduino.readline().decode('ASCII')
 
-def clear_all():
-    temp = arduino.readline().decode('ASCII')
-    while temp != '':
-        temp = arduino.readline().decode('ASCII')
-
 def close():
     arduino.close()
