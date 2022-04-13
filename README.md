@@ -55,7 +55,7 @@ __interface__ - First version of the GUI, designed for use with ArduinoPrinterCo
 
 __interfaceV2__ - Second version of GUI, designed for use with ArduinoPrinterVodeV2 to control printer movements.
 
-## Subfolder - Old
+### Subfolder - Old
 
 __arduinoTestingV4__ - Dummy class for interfaceV4 that existed to help with testing GUI functionality without having to have physical access to a printer.
 
