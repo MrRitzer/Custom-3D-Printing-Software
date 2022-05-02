@@ -1,5 +1,12 @@
+# Requires installation of pysimplegui: 'pip install pysimplegui'
 import PySimpleGUI as sg
+
+# Requires installation of pyserial: 'pip install pyserial'
 import arduinoV5 as ar
+
+# Addresses of button images that are stored locally, if updating the UI to
+# be more aesthetic these could be literally anything. Solely used to represent
+# the functionality that they perform in the GUI
 
 image_zup = 'button_icons\\white_double_arrow_up.png'
 image_zdn = 'button_icons\\white_double_arrow_down.png'
