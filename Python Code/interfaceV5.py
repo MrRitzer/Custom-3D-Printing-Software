@@ -7,7 +7,6 @@ import arduinoV5 as ar
 # Addresses of button images that are stored locally, if updating the UI to
 # be more aesthetic these could be literally anything. Solely used to represent
 # the functionality that they perform in the GUI
-
 image_zup = 'button_icons\\white_double_arrow_up.png'
 image_zdn = 'button_icons\\white_double_arrow_down.png'
 image_yup = 'button_icons\\white_arrow_up.png'
@@ -16,14 +15,18 @@ image_xlf = 'button_icons\\white_arrow_left.png'
 image_xrt = 'button_icons\\white_arrow_right.png'
 image_tsp = 'button_icons\\transparent.png'
 
-# Sets icon image size for gui
+# Sets icon image size for GUI
 def getImg(x,y):
     return sg.Image(source=image_tsp,size=(x,y))
 
 units = {'μm.','mm.'}
 
-### MUST BE DEFINED BEFORE PROGRAM IS RUN IN CURRENT ITERATION###
+### MUST BE DEFINED BEFORE PROGRAM IS RUN###
 # Steps to MM ratio for specific printer software is being used on
+# Originally this was used for all printing but this is only used for
+# manual adjustments. These conversion factors can/need to be updated to
+# correspond to the specific printer being used whenever generating codes
+# for the printer to run on. These values are required in the coordinate gen UI
 x_conv = 0.0125
 y_conv = 0.0125
 z_conv = 0.0176
@@ -100,6 +103,13 @@ def printMenu():
     # Create the window 
     window = sg.Window('Printer Interface', menu)
 
+    # Core logic of the GUI that is running, 'event' is equivalent to
+    # the button names that are defined above. Specific values correspond
+    # to 'key(s)' that are set above (such as '-UNITVALUE-'). Events correspond
+    # to on screen button clicks. Values are updated whenever a field that they
+    # are mapped to is updated. The below 'program,' or core logic of the program,
+    # uses error handling to verify input boxes aren't empty but otherwise simply
+    # sends directives to the arduino based on selected button 
     while True:
         event, values = window.read()
         if event == sg.WINDOW_CLOSED or event == 'Quit':
@@ -107,22 +117,22 @@ def printMenu():
             break
 
         if event == 'Start/Resume Print':
-            ar.startPrt() #Good
+            ar.startPrt()
         
         if event == 'Pause Print':
-            ar.pausePrt() #Good
+            ar.pausePrt()
         
         if event == 'Stop Print':
-            ar.stopPrt()  #Good
+            ar.stopPrt()
         
         if event == 'Set Home':
             ar.SetHome()
 
         if event == 'To Home':
-            ar.GoHome() #Good
+            ar.GoHome()
         
         if event == 'Get Status':
-            ar.GetPrintStatus() #Good
+            ar.GetPrintStatus()
 
         if event == 'Test':
             ar.test()

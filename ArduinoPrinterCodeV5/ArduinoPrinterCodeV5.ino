@@ -1,18 +1,17 @@
 /*
-  This example shows how to read and write data to and from an SD card file
-  The circuit:
-   SD card attached to SPI bus as follows:
+ ** Common pins to attach SD card reader to:
  ** MOSI - pin 11 or 51
  ** MISO - pin 12 or 50
  ** CLK - pin 13 or 52
  ** CS - pin 4 (for MKRZero SD: SDCARD_SS_PIN) or 53
 */
+
 #include <SPI.h>
 #include <SD.h>
 #include <AccelStepper.h>
 
-//Defines three AccelStepper profiles for each motor
-//Change to reflect printer setup
+// Defines three AccelStepper profiles for each motor
+// Change to reflect printer setup
 AccelStepper x_stepper(AccelStepper::DRIVER, 4, 5);
 AccelStepper y_stepper(AccelStepper::DRIVER, 6, 38);
 AccelStepper z_stepper(AccelStepper::DRIVER, 8, 9);
@@ -28,14 +27,23 @@ int xPos = 0;
 int yPos = 0;
 int zPos = 0;
 
-//Variables used with the SD card
+// Variables used with the SD card, cords
+//  Variables are accessed throughout the program
 File myFile;
 int RunCount = 0;
+
+// Note, these values are about the max reasonable values I
+// could make these arrarys. And while the program should be 
+// designed to know if the file has more lines than each array
+// has space I never got around to that and that functionality
+// needs to be added.
 int xCords[500];
 int yCords[500];
 int zCords[500];
 
 void setup() {
+  // These speeds can be adjusted and tested for specific machine that
+  // the program is being implemented on.
   x_stepper.setMaxSpeed(2000);
   x_stepper.setSpeed(rpm);
   x_stepper.setAcceleration(1000);
@@ -45,8 +53,12 @@ void setup() {
   z_stepper.setMaxSpeed(2000);
   z_stepper.setSpeed(rpm);
   z_stepper.setAcceleration(1000);
+  // Port used for CS by SD card. This can verify depending on installation
   SD.begin(53);
+  // Baud rate NEEDS to match baud rate specified in the GUI
   Serial.begin(9600);
+  // Loads data from SD card immediately. Program does not flag bad data
+  // in any way and may act unexpectedly if recieves bad data 
   GetSize();
   GetCords();
 }
@@ -134,6 +146,10 @@ void loop() {
     }
 }
 
+// manualPrint method handles recieved coordinates from
+// the program and adjusts the printer by specified amount.
+// I did not test doing this while in the middle of a print
+// but the way I designed it, it should work. Although why would you.
 void manualPrint() {
   while (true) {
     if (mnlMv[0]+mnlMv[1]+mnlMv[2] == 0) {
@@ -162,11 +178,14 @@ void manualPrint() {
       }
     }
   }
+  // Clears amount to move after finished printing
   mnlMv[0] = 0;
   mnlMv[1] = 0;
   mnlMv[2] = 0;
 }
 
+// Used as the main printing functionality and prints from the file initially loaded
+// grabs the next coordinate whenever the printer finishes the previous movement
 void autoPrint() {
   if (x_stepper.distanceToGo() == 0 && y_stepper.distanceToGo() == 0 && z_stepper.distanceToGo() == 0 && arr_pos < RunCount) {
     xPos += xCords[arr_pos];
@@ -193,6 +212,11 @@ void autoPrint() {
   }
 }
 
+// Used to get count of lines in the file.
+// Note, you can use this to adjust the program
+// to work with files with 500+ lines but adjusting
+// the program logic to go and get another set of 500
+// lines whenever it finishes the first 500.
 void GetSize() {
   myFile = SD.open("output.txt");
   char tempChar;
@@ -206,6 +230,10 @@ void GetSize() {
   myFile.close();
 }
 
+// After getting the length of the file goes through the 
+// file and stores all the x, y, and z coordinates in their
+// corresponding arrays
+// Expects that the file on the sd card be named "output.txt"
 void GetCords() {
   myFile = SD.open("output.txt");
   char tempChar;
@@ -255,13 +283,23 @@ void GetCords() {
   }
 }
 
-//Can recieve data up to 32 characters
+//////
+////// Begin
+//////
+
+// recvData and prcsData used to prevent the program from 
+// blocking while waiting for additional instructions from
+// the GUI. This enables smooth printing without having to be
+// provided additional communication from the host GUI to know
+// what the program should currently be doing.
+
+// Can recieve data up to 32 characters
 const byte numChars = 32;
 char receivedChars[numChars];
 boolean newData = false;
 
-//Starts when called in Loop
-//If no data is waiting at port proceeds without blocking
+// Starts when called in Loop
+// If no data is waiting at port proceeds without blocking
 void recvData() {
     static boolean recvInProgress = false;
     static byte ndx = 0;
@@ -338,3 +376,7 @@ void prcsData() {
         newData = false;
     }
 }
+
+//////
+////// End
+//////
